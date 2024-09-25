@@ -1,0 +1,19 @@
+# example https://github.com/ogen-go/ogen/blob/main/examples/_config/example_all.yml
+generator:
+  features:
+    enable:
+      # Enables paths server generation
+      - 'paths/server'
+      # Enables client usage in security source implementations
+      - 'client/security/reentrant'
+      # Enables validation of client requests
+      - 'client/request/validation'
+      # Enables validation of server responses
+      - 'server/response/validation'
+      # Enables OpenTelemetry integration
+      - 'ogen/otel'
+      # Enables stub Handler generation
+      - 'ogen/unimplemented'
+      # Enables example tests generation
+      - 'debug/example_tests'
+    disable_all: true

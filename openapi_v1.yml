@@ -1,0 +1,135 @@
+openapi: 3.0.0
+info:
+  title: Distributed File Storage API
+  description: API для загрузки и скачивания файлов с разбиением на части и хранением на нескольких серверах.
+  version: 1.0.0
+servers:
+  - url: http://localhost:8000
+    description: Local server
+paths:
+  /file:
+    post:
+      summary: Загрузка файла на сервер
+      operationId: UploadFile
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: Файл для загрузки
+      responses:
+        '200':
+          description: Файл успешно загружен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UploadStatus'
+        '400':
+          description: Ошибка загрузки файла
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        default:
+          description: Неизвестная ошибка
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /file/{id}:
+    get:
+      summary: Скачивание файла по его идентификатору
+      operationId: DownloadFile
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: Идентификатор загруженного файла
+      responses:
+        '200':
+          description: Файл успешно загружен
+          headers:
+            Content-Disposition:
+              schema:
+                type: string
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '404':
+          description: Файл не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        default:
+          description: Неизвестная ошибка
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /file/{id}/status:
+    get:
+      summary: Статус загрузки файла
+      operationId: GetFileStatus
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: Идентификатор загруженного файла
+      responses:
+        '200':
+          description: Статус успешно получен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UploadStatus'
+        '404':
+          description: Файл не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        default:
+          description: Неизвестная ошибка
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    UploadStatus:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+            - ready
+            - in_progress
+            - failed
+            - deleted
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Сообщение об ошибке
+        code:
+          type: integer
+          description: Код ошибки
+      required:
+        - message
+        - code
